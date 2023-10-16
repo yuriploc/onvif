@@ -15,6 +15,7 @@ defmodule Onvif.Media.Ver10.SetVideoEncoderConfiguration do
     element(:"s:Body", [
       element(:"trt:SetVideoEncoderConfiguration", [
         element(:"trt:Configuration", %{"token" => video_encoder_config.reference_token}, [
+          # element(:"tt:Name", video_encoder_config.name),
           element(
             :"tt:Encoding",
             Keyword.fetch!(
@@ -22,7 +23,7 @@ defmodule Onvif.Media.Ver10.SetVideoEncoderConfiguration do
               video_encoder_config.encoding
             )
           ),
-          element(:"tt:Quality", video_encoder_config.quality),
+          element(:"tt:Quality", trunc(video_encoder_config.quality)),
           element(
             :"tt:Resolution",
             [
@@ -36,23 +37,25 @@ defmodule Onvif.Media.Ver10.SetVideoEncoderConfiguration do
             element(:"tt:BitrateLimit", video_encoder_config.rate_control.bitrate_limit)
           ]),
           multicast_element(video_encoder_config.multicast_configuration)
-        ])
+        ]),
+        element(:"trt:ForcePersistence", true)
       ])
     ])
   end
 
   defp multicast_element(%{ip_address: %{type: :ipv4}} = multicast_configuration) do
     element(:"tt:Multicast", [
-      element(:"tt:Address", [
-        element(
-          :"tt:Type",
-          Keyword.fetch!(
-            Ecto.Enum.mappings(multicast_configuration.ip_address.__struct__, :type),
-            multicast_configuration.ip_address.type
-          )
-        ),
-        element(:"tt:IPv4Address", multicast_configuration.ip_address.ipv4_address)
-      ]),
+      element(:"tt:Address", 0),
+      # [
+      #   element(
+      #     :"tt:Type",
+      #     Keyword.fetch!(
+      #       Ecto.Enum.mappings(multicast_configuration.ip_address.__struct__, :type),
+      #       multicast_configuration.ip_address.type
+      #     )
+      #   ),
+      #   element(:"tt:IPv4Address", multicast_configuration.ip_address.ipv4_address)
+      # ]),
       element(:"tt:Port", multicast_configuration.port),
       element(:"tt:TTL", multicast_configuration.ttl),
       element(:"tt:AutoStart", multicast_configuration.auto_start)
@@ -84,6 +87,7 @@ defmodule Onvif.Media.Ver10.SetVideoEncoderConfiguration do
       ~x"//s:Envelope/s:Body/trt:SetVideoEncoderConfigurationResponse/text()"s
       |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
       |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
   end
 end
