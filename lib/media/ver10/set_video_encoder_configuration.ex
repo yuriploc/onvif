@@ -15,7 +15,8 @@ defmodule Onvif.Media.Ver10.SetVideoEncoderConfiguration do
     element(:"s:Body", [
       element(:"trt:SetVideoEncoderConfiguration", [
         element(:"trt:Configuration", %{"token" => video_encoder_config.reference_token}, [
-          # element(:"tt:Name", video_encoder_config.name),
+          element(:"tt:Name", video_encoder_config.name),
+          element(:"tt:UseCount", video_encoder_config.use_count),
           element(
             :"tt:Encoding",
             Keyword.fetch!(
